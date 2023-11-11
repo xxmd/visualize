@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:fillViewport="true"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+<!--    <RelativeLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content">-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <io.github.xxmd.TimeLine
+                android:layout_marginVertical="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="40dp" />
+
+<!--            <ImageView-->
+<!--                android:id="@+id/iv_cover"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:src="@mipmap/ic_launcher_round"-->
+<!--                android:scaleType="centerCrop"-->
+<!--                android:layout_height="50dp"/>-->
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="50dp" />
+        </LinearLayout>
+<!--    </RelativeLayout>-->
+</HorizontalScrollView>
