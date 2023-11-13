@@ -26,7 +26,7 @@ import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
 public class MainActivity extends AppCompatActivity {
-    private String videoFilePath = "/storage/emulated/0/DCIM/Camera/45dd6f6e9882305cdd8f31e82fd26445.mp4";
+    private String videoFilePath = "/storage/emulated/0/Download/BigBuckBunny.mp4";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
