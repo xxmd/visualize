@@ -45,7 +45,6 @@ public class VideoTimeLine extends View {
     private TextPaint textPaint;
     private Paint dotPaint;
     private int textHeight;
-    private int textWidth;
 
     private String videoFilePath = "";
     private float frameRatio;
@@ -53,20 +52,13 @@ public class VideoTimeLine extends View {
     private VelocityTracker velocityTracker;
     private Scroller scroller;
     private float preX;
-    private float preY;
-    private int minimumFlingVelocity;
     private int scrollDistance;
     private long totalWidth;
-    private boolean moving = false;
-    private int scrollThreshold;
-    private int startSecond;
-    private int transferX;
     private long duration;
     private TreeMap<Integer, Bitmap> videoFrameBuffer = new TreeMap<>();
     private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(20, 50, 0, TimeUnit.SECONDS, new ArrayBlockingQueue<>(20));
-    private Stack<Runnable> frameLoadStack = new Stack<>();
-    private Bitmap loadPicture;
 
+    private TimeLineListener listener;
     public String getVideoFilePath() {
         return videoFilePath;
     }
@@ -84,10 +76,8 @@ public class VideoTimeLine extends View {
         int frameRealHeight = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
         frameRatio = frameRealWidth * 1.0f / frameRealHeight;
         frameHeight = (int) (frameWidth / frameRatio);
-        totalWidth = (long) (frameWidth * duration / 1000f) + frameWidth;
+        totalWidth = (long) (frameWidth * (duration / 1000f + 1));
 
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.loading);
-        loadPicture = Bitmap.createScaledBitmap(bitmap, frameWidth, frameHeight, false);
         invalidate();
     }
 
@@ -105,6 +95,9 @@ public class VideoTimeLine extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (StringUtils.isNotEmpty(videoFilePath)) {
+            if (listener != null) {
+                listener.onCurTimeChange(scrollDistance / totalWidth * duration);
+            }
             int halfWidth = canvas.getWidth() / 2;
             int second, startX;
             if (scrollDistance < halfWidth) {
@@ -134,6 +127,14 @@ public class VideoTimeLine extends View {
         canvas.restore();
     }
 
+    private void adjustScrollDistance() {
+        if (scrollDistance < 0) {
+            scrollDistance = 0;
+        }
+        if (scrollDistance > totalWidth) {
+            scrollDistance = (int) totalWidth;
+        }
+    }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (velocityTracker == null) {
@@ -144,22 +145,11 @@ public class VideoTimeLine extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 scroller.forceFinished(true);
-                moving = false;
                 break;
             case MotionEvent.ACTION_MOVE:
                 float xGap = event.getX() - preX;
-                float yGap = event.getY() - preY;
-//                boolean validMove = Math.abs(xGap) > Math.abs(yGap) && xGap > scrollThreshold;
-//                if (!validMove) {
-//                    break;
-//                }
                 scrollDistance -= xGap;
-                if (scrollDistance < 0) {
-                    scrollDistance = 0;
-                }
-                if (scrollDistance > totalWidth) {
-                    scrollDistance = (int) totalWidth;
-                }
+                adjustScrollDistance();
                 invalidate();
                 break;
             case MotionEvent.ACTION_UP:
@@ -178,12 +168,7 @@ public class VideoTimeLine extends View {
     public void computeScroll() {
         if (scroller.computeScrollOffset()) {
             scrollDistance = scroller.getCurrX();
-            if (scrollDistance < 0) {
-                scrollDistance = 0;
-            }
-            if (scrollDistance > totalWidth) {
-                scrollDistance = (int) totalWidth;
-            }
+            adjustScrollDistance();
             invalidate();
         }
     }
