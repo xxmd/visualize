@@ -1,10 +1,12 @@
 package io.github.xxmd;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.view.View;
 
@@ -14,6 +16,7 @@ import com.luck.picture.lib.config.SelectModeConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.interfaces.OnResultCallbackListener;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import permissions.dispatcher.NeedsPermission;
@@ -23,7 +26,7 @@ import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
 public class MainActivity extends AppCompatActivity {
-    private String videoFilePath = "/storage/emulated/0/DCIM/com.jinyi.dsxbfqtv/petal_20230923_173911.mp4";
+    private String videoFilePath = "/storage/emulated/0/DCIM/Camera/45dd6f6e9882305cdd8f31e82fd26445.mp4";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,17 +37,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        //生成辅助类_动态注册权限
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // NOTE: delegate the permission handling to generated method
         MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
     private void bindEvent() {
-        findViewById(R.id.tv_choose_video).setOnClickListener(v -> {
-            int i = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
-            System.out.println(i == PackageManager.PERMISSION_GRANTED);
-            chooseVideo();
-        });
+        MainActivityPermissionsDispatcher.chooseVideoWithPermissionCheck(this);
+//        findViewById(R.id.tv_choose_video).setOnClickListener(v -> {
+//            int i = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+//            System.out.println(i == PackageManager.PERMISSION_GRANTED);
+//            chooseVideo();
+//        });
     }
 
     @Override
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
 //        showRationaleDialog(R.string.permission_camera_rationale, request)
 //    }
 
-    @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+    @NeedsPermission({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
     public void chooseVideo() {
         VideoTimeLine videoTimeLine = findViewById(R.id.video_time_line);
         videoTimeLine.setVideoFilePath(videoFilePath);
@@ -70,11 +72,12 @@ public class MainActivity extends AppCompatActivity {
 //                    public void onResult(ArrayList<LocalMedia> result) {
 //                        VideoTimeLine videoTimeLine = findViewById(R.id.video_time_line);
 //                        videoTimeLine.setVideoFilePath(result.get(0).getRealPath());
+//                        System.out.println(result.get(0).getRealPath());
 //                    }
 //
 //                    @Override
 //                    public void onCancel() {
-//
+//                        System.out.println();
 //                    }
 //                });
     }
